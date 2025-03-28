@@ -1,47 +1,37 @@
 package com.georgian.moviesearchapp
-
+//implementation file where everything starts
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.georgian.moviesearchapp.ui.theme.MovieSearchAppTheme
+import androidx.activity.viewModels
+import androidx.navigation.compose.rememberNavController
+import com.georgian.moviesearchapp.ui.navigation.MovieNavGraph
+import com.georgian.moviesearchapp.ui.viewmodel.MovieViewModel
+import com.georgian.moviesearchapp.data.network.ApiService
+import com.georgian.moviesearchapp.data.repository.MovieRepository
+import com.georgian.moviesearchapp.ui.viewmodel.MovieViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            MovieSearchAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            // Initialize navigation controller
+            val navController = rememberNavController()
+
+            // Initialize ApiService and MovieRepository
+            val apiService = ApiService.create()
+            val movieRepository = MovieRepository(apiService)
+
+            // Initialize the ViewModel using viewModels delegate (prevents recreation on recomposition)
+            val movieViewModel: MovieViewModel by viewModels {
+                MovieViewModelFactory(movieRepository)
             }
+
+            // Pass the ViewModel to the Navigation Graph
+            MovieNavGraph(
+                navController = navController,
+                movieViewModel = movieViewModel
+            )
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MovieSearchAppTheme {
-        Greeting("Android")
     }
 }

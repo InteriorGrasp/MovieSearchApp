@@ -1,27 +1,25 @@
 package com.georgian.moviesearchapp.data.model
-
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-
-@Serializable
+// movie details of selected one stored in variables
 data class MovieDetail(
-    @SerialName("Title") val title: String,
-    @SerialName("Year") val year: String? = null,
-    @SerialName("Rated") val rated: String? = null,
-    @SerialName("Released") val released: String? = null,
-    @SerialName("Runtime") val runtime: String? = null,
-    @SerialName("Genre") val genre: String? = null,
-    @SerialName("Director") val director: String? = null,
-    @SerialName("Writer") val writer: String? = null,
-    @SerialName("Actors") val actors: String? = null,
-    @SerialName("Plot") val plot: String? = null,
-    @SerialName("Language") val language: String? = null,
-    @SerialName("Country") val country: String? = null,
-    @SerialName("Awards") val awards: String? = null,
-    @SerialName("Poster") val poster: String? = null,
-    @SerialName("imdbRating") val imdbRating: String? = null,
-    @SerialName("imdbVotes") val imdbVotes: String? = null,
-    @SerialName("imdbID") val imdbID: String,
-    @SerialName("BoxOffice") val boxOffice: String? = null,
-    @SerialName("Website") val website: String? = null
+    val Title: String,
+    val Year: String?,
+    val Rated: String?,
+    val Released: String?,
+    val Runtime: String?,
+    val Genre: String?,
+    val Director: String?,
+    val Writer: String?,
+    val Actors: String?,
+    val Plot: String?,
+    val Language: String?,
+    val Country: String?,
+    val Awards: String?,
+    val Poster: String?,
+    val imdbRating: String?,
+    val imdbVotes: String?,
+    val imdbID: String,
+    val BoxOffice: String?,
+    val Website: String?
 )
+
+

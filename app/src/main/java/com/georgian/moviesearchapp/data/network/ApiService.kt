@@ -2,72 +2,44 @@ package com.georgian.moviesearchapp.data.network
 
 import com.georgian.moviesearchapp.data.model.Movie
 import com.georgian.moviesearchapp.data.model.MovieDetail
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.json.Json
-
+import retrofit2.http.GET
+import retrofit2.http.Query
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+//Api service to retrieve data from database of API
 interface ApiService {
+    @GET("?apikey=683a2222&type=movie")
+    suspend fun searchMovies(@Query("s") query: String): MovieResponse //works with keyword search
 
-    suspend fun searchMovies(query: String): MovieResponse
-    suspend fun getMovieDetails(imdbID: String): MovieDetail
+    // Add method for fetching movie details using imdbID
+    @GET("?apikey=683a2222")
+    suspend fun getMovieDetails(@Query("i") imdbID: String): MovieDetail
 
     companion object {
         private const val BASE_URL = "https://www.omdbapi.com/"
-        private const val API_KEY = "683a2222" // Store in a secure place for production apps
-
+        // Create Retrofit instance
         fun create(): ApiService {
-            val client = HttpClient {
-                install(ContentNegotiation) {
-                    json(Json {
-                        prettyPrint = true
-                        isLenient = true
-                        ignoreUnknownKeys = true
-                    })
-                }
-            }
+            val retrofit = Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
 
-            return object : ApiService {
-
-                override suspend fun searchMovies(query: String): MovieResponse {
-                    val response = client.get(BASE_URL) {
-                        parameter("apikey", API_KEY)
-                        parameter("s", query)
-                        parameter("type", "movie")
-                    }
-                    return response.body()
-                }
-
-                override suspend fun getMovieDetails(imdbID: String): MovieDetail {
-                    val response = client.get(BASE_URL) {
-                        parameter("apikey", API_KEY)
-                        parameter("i", imdbID)
-                    }
-                    return response.body()
-                }
-            }
+            return retrofit.create(ApiService::class.java)
         }
     }
 }
 
-@Serializable
+//keyword search in db
 data class MovieResponse(
-    @SerialName("Search")
-    val search: List<Movie> = emptyList(),
-
-    @SerialName("totalResults")
-    val totalResults: String = "",
-
-    @SerialName("Response")
-    val response: String = ""
-) {
+    val Search: List<Movie>,
+    val totalResults: String,
+    val Response: String ) {
+    // The 'contains' method checks if any movie in the 'Search' list contains the query string (case-insensitive).
     fun contains(query: String): Boolean {
-        return search.any {
+    // Search for movies that have a title matching the query (case insensitive)
+        return Search.any {
             it.Title.contains(query, ignoreCase = true)
         }
     }
 }
+

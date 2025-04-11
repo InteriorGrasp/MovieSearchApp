@@ -89,7 +89,7 @@ fun MovieItem(movie: Movie, navController: NavController) {
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Year: ${movie.Year ?: "N/A"}",
+                    text = "Year: ${movie.Year }",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

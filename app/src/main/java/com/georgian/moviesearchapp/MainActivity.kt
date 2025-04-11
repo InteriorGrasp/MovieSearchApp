@@ -11,7 +11,7 @@ import com.georgian.moviesearchapp.data.network.ApiService
 import com.georgian.moviesearchapp.data.repository.MovieRepository
 import com.georgian.moviesearchapp.ui.viewmodel.MovieViewModelFactory
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

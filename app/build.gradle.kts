@@ -5,6 +5,7 @@ plugins {
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.20"
 }
 
 android {
@@ -53,20 +54,15 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.4"
     }
-
-    // Add packagingOptions to exclude duplicate META-INF files
-    packagingOptions {
-        exclude("META-INF/DEPENDENCIES")
-        exclude("META-INF/INDEX.LIST")
-    }
 }
 
 dependencies {
+    // Core dependencies
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.activity:activity-compose:1.10.1")
 
-    // Compose
+    // Compose dependencies
     implementation("androidx.compose.ui:ui:1.7.8")
     implementation("androidx.compose.ui:ui-tooling-preview:1.7.8")
     implementation("androidx.compose.material3:material3:1.3.1")
@@ -74,25 +70,28 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 
-    // Retrofit & JSON Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-    implementation(libs.retrofit2.kotlinx.serialization.converter)
-    implementation(libs.retrofit)
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // Ktor Client dependencies
+    implementation("io.ktor:ktor-client-core:2.3.0") // Core Ktor client
+    implementation("io.ktor:ktor-client-android:2.3.0") // Android support for Ktor
+    implementation("io.ktor:ktor-client-serialization:2.3.0") // Serialization support
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.0") // Content negotiation support
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") // Kotlinx serialization
+
+    // Ktor serialization support
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.0")
 
     // Image Loading
     implementation("io.coil-kt:coil-compose:2.5.0")
 
-    // Dagger Hilt (Keep only latest version)
+    // Dagger Hilt dependencies
     implementation("com.google.dagger:hilt-android:2.50")
-    implementation(libs.firebase.appdistribution.gradle)
     kapt("com.google.dagger:hilt-android-compiler:2.50")
 
     // Hilt Navigation
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
-    // Testing
-    testImplementation(libs.junit)
+    // Testing dependencies
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.8")

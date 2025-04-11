@@ -1,5 +1,10 @@
 package com.georgian.moviesearchapp.data.model
+
+
+import kotlinx.serialization.Serializable
+
 // movie details of selected one stored in variables
+@Serializable
 data class MovieDetail(
     val Title: String,
     val Year: String?,
@@ -21,5 +26,14 @@ data class MovieDetail(
     val BoxOffice: String?,
     val Website: String?
 )
+
+
+@Serializable
+data class Rating(
+    val Source: String,
+    val Value: String
+)
+
+
 
 

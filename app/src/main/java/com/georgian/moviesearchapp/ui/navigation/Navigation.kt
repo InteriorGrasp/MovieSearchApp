@@ -1,23 +1,26 @@
 package com.georgian.moviesearchapp.ui.navigation
- // It controls which screen the user sees when they search for movies
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.georgian.moviesearchapp.ui.screens.MovieDetailScreen
 import com.georgian.moviesearchapp.ui.screens.MovieSearchScreen
 import com.georgian.moviesearchapp.ui.viewmodel.MovieViewModel
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.unit.dp
 
 sealed class Screen(val route: String) {
     object Search : Screen("movie_search")
@@ -35,9 +38,11 @@ fun MovieNavGraph(navController: NavHostController, movieViewModel: MovieViewMod
         }
 
         composable(Screen.Detail.route) { backStackEntry ->
+            // Extract the movieId from the navigation argument
             val movieId = backStackEntry.arguments?.getString("movieId")
             var errorMessage by remember { mutableStateOf<String?>(null) }
 
+            // Fetch movie details using the movieId
             movieId?.let {
                 try {
                     movieViewModel.getMovieDetails(it)

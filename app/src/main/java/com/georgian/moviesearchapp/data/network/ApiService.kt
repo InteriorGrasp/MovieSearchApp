@@ -12,42 +12,37 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.Json
 
 interface ApiService {
-
     suspend fun searchMovies(query: String): MovieResponse
     suspend fun getMovieDetails(imdbID: String): MovieDetail
 
     companion object {
         private const val BASE_URL = "https://www.omdbapi.com/"
-        private const val API_KEY = "683a2222" // Store in a secure place for production apps
+        private const val API_KEY = "683a2222"
 
         fun create(): ApiService {
             val client = HttpClient {
                 install(ContentNegotiation) {
                     json(Json {
-                        prettyPrint = true
-                        isLenient = true
                         ignoreUnknownKeys = true
                     })
                 }
             }
 
             return object : ApiService {
-
                 override suspend fun searchMovies(query: String): MovieResponse {
-                    val response = client.get(BASE_URL) {
+                    return client.get(BASE_URL) {
                         parameter("apikey", API_KEY)
                         parameter("s", query)
                         parameter("type", "movie")
-                    }
-                    return response.body()
+                    }.body()
                 }
 
                 override suspend fun getMovieDetails(imdbID: String): MovieDetail {
-                    val response = client.get(BASE_URL) {
+                    return client.get(BASE_URL) {
                         parameter("apikey", API_KEY)
                         parameter("i", imdbID)
-                    }
-                    return response.body()
+                        parameter("plot", "full")
+                    }.body()
                 }
             }
         }
@@ -56,7 +51,7 @@ interface ApiService {
 
 @Serializable
 data class MovieResponse(
-    @SerialName("Search")
+    @SerialName("Search")  // The key "Search" in the API response
     val search: List<Movie> = emptyList(),
 
     @SerialName("totalResults")
@@ -64,10 +59,4 @@ data class MovieResponse(
 
     @SerialName("Response")
     val response: String = ""
-) {
-    fun contains(query: String): Boolean {
-        return search.any {
-            it.Title.contains(query, ignoreCase = true)
-        }
-    }
-}
+)

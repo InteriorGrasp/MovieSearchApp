@@ -1,106 +1,65 @@
 package com.georgian.moviesearchapp.ui.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
-
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.georgian.moviesearchapp.ui.screens.MovieDetailScreen
-import com.georgian.moviesearchapp.ui.screens.MovieSearchScreen
+import com.georgian.moviesearchapp.ui.screens.*
 import com.georgian.moviesearchapp.ui.viewmodel.MovieViewModel
+import com.georgian.moviesearchapp.data.auth.FirebaseAuthManager
 
 sealed class Screen(val route: String) {
+    object Login : Screen("login")
+    object Register : Screen("register")
     object Search : Screen("movie_search")
-    object Detail : Screen("movie_detail/{movieId}") {
-        fun createRoute(movieId: String) = "movie_detail/$movieId"
+    object Detail : Screen("movie_detail/{imdbID}") {
+        fun createRoute(imdbID: String) = "movie_detail/$imdbID"
+    }
+    object Favorites : Screen("favorites")
+    object FavoriteEdit : Screen("favorite_edit/{movieId}") {
+        fun createRoute(movieId: String) = "favorite_edit/$movieId"
     }
 }
 
 @Composable
 fun MovieNavGraph(navController: NavHostController, movieViewModel: MovieViewModel) {
+    val isLoggedIn = remember { mutableStateOf(FirebaseAuthManager.getCurrentUser() != null) }
 
-    NavHost(navController = navController, startDestination = Screen.Search.route) {
-        composable(Screen.Search.route) {
-            MovieSearchScreen(navController = navController, viewModel = movieViewModel)
+    NavHost(
+        navController = navController,
+        startDestination = if (isLoggedIn.value) Screen.Search.route else Screen.Login.route
+    ) {
+        composable(Screen.Login.route) {
+            LoginScreen(navController = navController)
         }
 
+        composable(Screen.Register.route) {
+            RegisterScreen(navController = navController)
+        }
+
+        composable(Screen.Search.route) {
+            MovieSearchScreen(navController = navController, movieViewModel = movieViewModel)
+        }
+
+        // ✅ Now the Detail screen only receives imdbID and lets the screen handle the rest
         composable(Screen.Detail.route) { backStackEntry ->
-            // Extract the movieId from the navigation argument
+            val imdbID = backStackEntry.arguments?.getString("imdbID") ?: return@composable
+            MovieDetailScreen(
+                imdbID = imdbID,
+                navController = navController,
+                movieViewModel = movieViewModel
+            )
+        }
+
+        composable(Screen.Favorites.route) {
+            FavoritesScreen(navController = navController, movieViewModel = movieViewModel)
+        }
+
+        composable(Screen.FavoriteEdit.route) { backStackEntry ->
             val movieId = backStackEntry.arguments?.getString("movieId")
-            var errorMessage by remember { mutableStateOf<String?>(null) }
-
-            // Fetch movie details using the movieId
             movieId?.let {
-                try {
-                    movieViewModel.getMovieDetails(it)
-                } catch (e: Exception) {
-                    errorMessage = "Movie not found. Please try another search."
-                }
-            }
-
-            val movieDetail by movieViewModel.movieDetails.collectAsState()
-
-            Box(modifier = Modifier.fillMaxSize()) {
-                // Loading State
-                AnimatedVisibility(visible = movieDetail == null && errorMessage == null) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(50.dp),
-                            color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = 4.dp
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Fetching movie details...",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
-
-                // Error State
-                AnimatedVisibility(visible = errorMessage != null) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = errorMessage ?: "Unknown error occurred",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { navController.popBackStack() }) {
-                            Text("Go Back to Search")
-                        }
-                    }
-                }
-
-                // Show Movie Details if Found
-                movieDetail?.let {
-                    MovieDetailScreen(movie = it, navController = navController)
-                }
+                FavoriteEditScreen(movieId = it, navController = navController, movieViewModel = movieViewModel)
             }
         }
     }

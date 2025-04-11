@@ -3,160 +3,174 @@ package com.georgian.moviesearchapp.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.TextStyle
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.TextStyle
 import coil.compose.rememberAsyncImagePainter
+import com.georgian.moviesearchapp.data.model.Movie
 import com.georgian.moviesearchapp.data.model.MovieDetail
-//ui for movie detail screen
-@OptIn(ExperimentalMaterial3Api::class)
+import com.georgian.moviesearchapp.ui.viewmodel.MovieViewModel
+import androidx.navigation.NavHostController
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.widget.Toast
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MovieDetailScreen(movie: MovieDetail, navController: NavController) {
+fun MovieDetailScreen(
+    imdbID: String,
+    navController: NavHostController,
+    movieViewModel: MovieViewModel
+) {
+    val context = LocalContext.current
+    val movieDetail by movieViewModel.movieDetails.collectAsStateWithLifecycle()
+    val favoriteMovies by movieViewModel.favoriteMovies.collectAsStateWithLifecycle()
+    var isFavorite by remember { mutableStateOf(false) }
+
+    LaunchedEffect(imdbID) { movieViewModel.getMovieDetails(imdbID) }
+    LaunchedEffect(favoriteMovies, movieDetail) {
+        isFavorite = favoriteMovies.any { it.imdbID == imdbID }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Movie Details") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
         }
     ) { paddingValues ->
-
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-
-            // Movie Poster
-            movie.poster?.let {
-                if (it.isNotEmpty()) {
+        if (movieDetail == null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                // Poster Section
+                movieDetail!!.poster?.takeIf { it.isNotEmpty() }?.let {
                     Image(
                         painter = rememberAsyncImagePainter(it),
                         contentDescription = "Movie Poster",
                         modifier = Modifier
                             .height(300.dp)
                             .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        alignment = Alignment.Center
-                    )
-                } else {
-                    // Default Placeholder if no poster
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp)
                             .padding(bottom = 16.dp)
-                            .background(Color.Gray)
-                    ) {
+                    )
+                } ?: Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .background(Color.Gray)
+                        .padding(bottom = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No Image Available", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+
+                // Movie Info
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "No Image Available",
-                            style = TextStyle(
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            ),
-                            modifier = Modifier.align(Alignment.Center)
+                            text = movieDetail!!.title ?: "N/A",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        DetailRow("Released", movieDetail!!.released)
+                        DetailRow("Year", movieDetail!!.year)
+                        DetailRow("Rated", movieDetail!!.rated)
+                        DetailRow("Runtime", movieDetail!!.runtime)
+                        DetailRow("Genre", movieDetail!!.genre)
+                        DetailRow("Director", movieDetail!!.director)
+                        DetailRow("Writer", movieDetail!!.writer)
+                        DetailRow("Actors", movieDetail!!.actors)
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("Plot:", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = movieDetail!!.plot ?: "No plot available",
+                            style = MaterialTheme.typography.bodyLarge
                         )
                     }
                 }
-            }
 
-            // Movie details in a Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                shape = RoundedCornerShape(8.dp)
-            ) {
+                Spacer(modifier = Modifier.height(24.dp))
 
-                Column(modifier = Modifier.padding(16.dp)) {
-
-                    Text(
-                        text = movie.title,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "Released: ${movie.released ?: "N/A"}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Text(
-                        text = "Year: ${movie.year ?: "N/A"}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Text(
-                        text = "Rated: ${movie.rated ?: "N/A"}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Text(
-                        text = "Runtime: ${movie.runtime ?: "N/A"}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Text(
-                        text = "Genre: ${movie.genre ?: "N/A"}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Text(
-                        text = "Director: ${movie.director ?: "N/A"}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Text(
-                        text = "Writer: ${movie.writer ?: "N/A"}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Text(
-                        text = "Actors: ${movie.actors ?: "N/A"}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = "Plot:",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = movie.plot ?: "No plot available",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                Button(
+                    onClick = {
+                        if (isFavorite) {
+                            Toast.makeText(context, "Already in favorites!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            movieDetail?.let {
+                                movieViewModel.addFavoriteMovie(
+                                    Movie(
+                                        id = it.imdbID ?: "",
+                                        title = it.title ?: "",
+                                        poster = it.poster ?: "",
+                                        year = it.year ?: "",
+                                        imdbID = it.imdbID ?: "",
+                                        type = "movie"
+                                    )
+                                )
+                                Toast.makeText(context, "Movie added to favorites!", Toast.LENGTH_SHORT).show()
+                                isFavorite = true
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(if (isFavorite) "Already in Favorites" else "Add to Favorites")
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun DetailRow(label: String, value: String?) {
+    if (!value.isNullOrEmpty()) {
+        Row(
+            modifier = Modifier.padding(vertical = 4.dp)
+        ) {
+            Text(
+                text = "$label: ",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.width(90.dp)
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }

@@ -1,99 +1,100 @@
 package com.georgian.moviesearchapp.ui.screens
 
-//ui for movie search screen
-import androidx.compose.foundation.*
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
 import com.georgian.moviesearchapp.data.model.Movie
-import com.georgian.moviesearchapp.ui.viewmodel.MovieViewModel
 import com.georgian.moviesearchapp.ui.navigation.Screen
+import com.georgian.moviesearchapp.ui.viewmodel.MovieViewModel
 
 @Composable
-fun MovieSearchScreen(navController: NavController, viewModel: MovieViewModel) {
+fun MovieSearchScreen(
+    movieViewModel: MovieViewModel,
+    navController: NavController
+) {
+    val searchState by movieViewModel.searchState.collectAsState()
+    val movies by movieViewModel.movies.collectAsState()
     var query by remember { mutableStateOf("") }
-    val searchState by viewModel.searchState.collectAsState()
-    val movies = viewModel.movies.collectAsState().value
 
-    Column(modifier = Modifier
-        .padding(16.dp)
-        .fillMaxSize()) {
-
-        // Search TextField and Button
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
         OutlinedTextField(
             value = query,
-            onValueChange = { query = it },
-            label = { Text("Search Movies") },
-            modifier = Modifier.fillMaxWidth()
+            onValueChange = {
+                query = it
+                movieViewModel.searchMovies(query)
+            },
+            label = { Text("Search for a movie") },
+            modifier = Modifier
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            singleLine = true
         )
 
-        Button(
-            onClick = { viewModel.searchMovies(query) },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = query.isNotEmpty() && !searchState.isLoading
-        ) {
-            Text("Search")
-        }
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Loading State and Error Message
-        searchState.error?.let {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = it, color = MaterialTheme.colorScheme.error)
-        }
+        when {
+            searchState.isLoading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
 
-        if (searchState.isLoading) {
-            Spacer(modifier = Modifier.height(16.dp))
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        }
+            searchState.error != null -> {
+                Text(
+                    text = searchState.error ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
 
-        // Movie List
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(movies) { movie ->
-                MovieItem(movie = movie, navController = navController)
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(movies) { movie ->
+                        MovieListItem(movie = movie, navController = navController)
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun MovieItem(movie: Movie, navController: NavController) {
+fun MovieListItem(movie: Movie, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
             .clickable { navController.navigate(Screen.Detail.createRoute(movie.imdbID)) },
-        elevation = CardDefaults.cardElevation(4.dp),
-        shape = MaterialTheme.shapes.medium
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Row(modifier = Modifier.padding(16.dp)) {
-            // Movie Poster
-            Image(
-                painter = rememberAsyncImagePainter(movie.Poster),
-                contentDescription = "Movie Poster",
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(end = 16.dp),
-                alignment = Alignment.Center
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = movie.title,
+                style = MaterialTheme.typography.titleMedium
             )
-            Column {
-                Text(
-                    text = movie.Title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = "Year: ${movie.Year }",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
         }
     }
 }

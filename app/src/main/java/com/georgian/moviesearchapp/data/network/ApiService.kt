@@ -5,10 +5,11 @@ import com.georgian.moviesearchapp.data.model.MovieDetail
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import kotlinx.serialization.json.Json
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.json.Json
 
 interface ApiService {
 
@@ -17,35 +18,36 @@ interface ApiService {
 
     companion object {
         private const val BASE_URL = "https://www.omdbapi.com/"
-        private const val API_KEY = "683a2222"
+        private const val API_KEY = "683a2222" // Store in a secure place for production apps
 
         fun create(): ApiService {
-            // Initialize HttpClient
             val client = HttpClient {
                 install(ContentNegotiation) {
-                    json(Json { prettyPrint = true; isLenient = true })
+                    json(Json {
+                        prettyPrint = true
+                        isLenient = true
+                        ignoreUnknownKeys = true
+                    })
                 }
             }
 
             return object : ApiService {
 
-                // Fetch movie search results
                 override suspend fun searchMovies(query: String): MovieResponse {
                     val response = client.get(BASE_URL) {
                         parameter("apikey", API_KEY)
                         parameter("s", query)
                         parameter("type", "movie")
                     }
-                    return response.body() // Deserialize the response to MovieResponse
+                    return response.body()
                 }
 
-                // Fetch movie details by IMDb ID
                 override suspend fun getMovieDetails(imdbID: String): MovieDetail {
                     val response = client.get(BASE_URL) {
                         parameter("apikey", API_KEY)
                         parameter("i", imdbID)
                     }
-                    return response.body() // Deserialize the response to MovieDetail
+                    return response.body()
                 }
             }
         }
@@ -54,13 +56,17 @@ interface ApiService {
 
 @Serializable
 data class MovieResponse(
-    val Search: List<Movie>,
-    val totalResults: String,
-    val Response: String
+    @SerialName("Search")
+    val search: List<Movie> = emptyList(),
+
+    @SerialName("totalResults")
+    val totalResults: String = "",
+
+    @SerialName("Response")
+    val response: String = ""
 ) {
-    // Utility function to check if any movie title matches the search query
     fun contains(query: String): Boolean {
-        return Search.any {
+        return search.any {
             it.Title.contains(query, ignoreCase = true)
         }
     }

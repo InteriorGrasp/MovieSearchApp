@@ -6,20 +6,21 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.TextStyle
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import coil.compose.rememberAsyncImagePainter
 import com.georgian.moviesearchapp.data.model.MovieDetail
-
 //ui for movie detail screen
 @OptIn(ExperimentalMaterial3Api::class)
 
@@ -31,7 +32,7 @@ fun MovieDetailScreen(movie: MovieDetail, navController: NavController) {
                 title = { Text("Movie Details") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -46,7 +47,7 @@ fun MovieDetailScreen(movie: MovieDetail, navController: NavController) {
         ) {
 
             // Movie Poster
-            movie.Poster?.let {
+            movie.poster?.let {
                 if (it.isNotEmpty()) {
                     Image(
                         painter = rememberAsyncImagePainter(it),
@@ -88,7 +89,7 @@ fun MovieDetailScreen(movie: MovieDetail, navController: NavController) {
                 Column(modifier = Modifier.padding(16.dp)) {
 
                     Text(
-                        text = movie.Title,
+                        text = movie.title,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -96,49 +97,49 @@ fun MovieDetailScreen(movie: MovieDetail, navController: NavController) {
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Released: ${movie.Released ?: "N/A"}",
+                        text = "Released: ${movie.released ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Year: ${movie.Year ?: "N/A"}",
+                        text = "Year: ${movie.year ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Rated: ${movie.Rated ?: "N/A"}",
+                        text = "Rated: ${movie.rated ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Runtime: ${movie.Runtime ?: "N/A"}",
+                        text = "Runtime: ${movie.runtime ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Genre: ${movie.Genre ?: "N/A"}",
+                        text = "Genre: ${movie.genre ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Director: ${movie.Director ?: "N/A"}",
+                        text = "Director: ${movie.director ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Writer: ${movie.Writer ?: "N/A"}",
+                        text = "Writer: ${movie.writer ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Actors: ${movie.Actors ?: "N/A"}",
+                        text = "Actors: ${movie.actors ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -150,7 +151,7 @@ fun MovieDetailScreen(movie: MovieDetail, navController: NavController) {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = movie.Plot ?: "No plot available",
+                        text = movie.plot ?: "No plot available",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -159,5 +160,3 @@ fun MovieDetailScreen(movie: MovieDetail, navController: NavController) {
         }
     }
 }
-
-

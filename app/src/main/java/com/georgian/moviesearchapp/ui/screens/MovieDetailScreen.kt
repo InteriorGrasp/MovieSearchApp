@@ -47,7 +47,7 @@ fun MovieDetailScreen(movie: MovieDetail, navController: NavController) {
         ) {
 
             // Movie Poster
-            movie.Poster?.let {
+            movie.poster?.let {
                 if (it.isNotEmpty()) {
                     Image(
                         painter = rememberAsyncImagePainter(it),
@@ -89,7 +89,7 @@ fun MovieDetailScreen(movie: MovieDetail, navController: NavController) {
                 Column(modifier = Modifier.padding(16.dp)) {
 
                     Text(
-                        text = movie.Title,
+                        text = movie.title,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -97,49 +97,49 @@ fun MovieDetailScreen(movie: MovieDetail, navController: NavController) {
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Released: ${movie.Released ?: "N/A"}",
+                        text = "Released: ${movie.released ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Year: ${movie.Year ?: "N/A"}",
+                        text = "Year: ${movie.year ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Rated: ${movie.Rated ?: "N/A"}",
+                        text = "Rated: ${movie.rated ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Runtime: ${movie.Runtime ?: "N/A"}",
+                        text = "Runtime: ${movie.runtime ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Genre: ${movie.Genre ?: "N/A"}",
+                        text = "Genre: ${movie.genre ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Director: ${movie.Director ?: "N/A"}",
+                        text = "Director: ${movie.director ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Writer: ${movie.Writer ?: "N/A"}",
+                        text = "Writer: ${movie.writer ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Text(
-                        text = "Actors: ${movie.Actors ?: "N/A"}",
+                        text = "Actors: ${movie.actors ?: "N/A"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -151,7 +151,7 @@ fun MovieDetailScreen(movie: MovieDetail, navController: NavController) {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = movie.Plot ?: "No plot available",
+                        text = movie.plot ?: "No plot available",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

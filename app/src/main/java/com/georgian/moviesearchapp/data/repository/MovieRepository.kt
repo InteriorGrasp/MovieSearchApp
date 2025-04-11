@@ -10,13 +10,11 @@ class MovieRepository(private val apiService: ApiService) {
     // Store search results in MovieList model
     suspend fun searchMovies(query: String): List<Movie> {
         val response: MovieResponse = apiService.searchMovies(query)
-        return response.Search.filter { it.Title.contains(query, ignoreCase = true) }
+        return response.search.filter { it.Title.contains(query, ignoreCase = true) }
     }
 
     // Fetch movie details and save in MovieDetail model
     suspend fun getMovieDetails(imdbID: String): MovieDetail {
         return apiService.getMovieDetails(imdbID)
-    }
+        }
 }
-
-

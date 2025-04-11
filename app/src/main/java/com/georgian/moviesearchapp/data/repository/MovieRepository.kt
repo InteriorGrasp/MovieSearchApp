@@ -16,5 +16,5 @@ class MovieRepository(private val apiService: ApiService) {
     // Fetch movie details and save in MovieDetail model
     suspend fun getMovieDetails(imdbID: String): MovieDetail {
         return apiService.getMovieDetails(imdbID)
-        }
+    }
 }

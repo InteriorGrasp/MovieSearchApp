@@ -1,10 +1,12 @@
 package com.georgian.moviesearchapp.data.model
-//list of searched movie
+
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Movie(
     val Title: String,
-    val Year: String?,
-    val Poster: String?,
+    val Year: String,
     val imdbID: String,
+    val Type: String,
+    val Poster:String
 )
-
-

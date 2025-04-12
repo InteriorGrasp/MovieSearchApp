@@ -11,18 +11,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.TextStyle
 import coil.compose.rememberAsyncImagePainter
 import com.georgian.moviesearchapp.data.model.Movie
-import com.georgian.moviesearchapp.data.model.MovieDetail
 import com.georgian.moviesearchapp.ui.viewmodel.MovieViewModel
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.widget.Toast
+import androidx.compose.foundation.rememberScrollState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,6 +66,7 @@ fun MovieDetailScreen(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
                 // Poster Section

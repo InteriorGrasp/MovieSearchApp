@@ -1,7 +1,6 @@
 package com.georgian.moviesearchapp.ui.navigation
 
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,7 +22,10 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun MovieNavGraph(navController: NavHostController, movieViewModel: MovieViewModel) {
+fun MovieNavGraph(
+    navController: NavHostController,
+    movieViewModel: MovieViewModel
+) {
     val isLoggedIn = remember { mutableStateOf(FirebaseAuthManager.getCurrentUser() != null) }
 
     NavHost(
@@ -42,7 +44,6 @@ fun MovieNavGraph(navController: NavHostController, movieViewModel: MovieViewMod
             MovieSearchScreen(navController = navController, movieViewModel = movieViewModel)
         }
 
-        // ✅ Now the Detail screen only receives imdbID and lets the screen handle the rest
         composable(Screen.Detail.route) { backStackEntry ->
             val imdbID = backStackEntry.arguments?.getString("imdbID") ?: return@composable
             MovieDetailScreen(
@@ -53,13 +54,17 @@ fun MovieNavGraph(navController: NavHostController, movieViewModel: MovieViewMod
         }
 
         composable(Screen.Favorites.route) {
-            FavoritesScreen(navController = navController, movieViewModel = movieViewModel)
+            FavouriteMovieScreen(navController = navController, movieViewModel = movieViewModel)
         }
 
         composable(Screen.FavoriteEdit.route) { backStackEntry ->
             val movieId = backStackEntry.arguments?.getString("movieId")
             movieId?.let {
-                FavoriteEditScreen(movieId = it, navController = navController, movieViewModel = movieViewModel)
+                FavoriteEditScreen(
+                    movieId = it,
+                    navController = navController,
+                    movieViewModel = movieViewModel
+                )
             }
         }
     }

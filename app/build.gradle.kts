@@ -114,6 +114,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose.android)
+    implementation(libs.firebase.database.ktx)
     kapt("com.google.dagger:hilt-android-compiler:2.50")
 
     // Hilt Navigation

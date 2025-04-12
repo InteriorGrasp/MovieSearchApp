@@ -34,16 +34,17 @@ class MovieRepository(private val apiService: ApiService) {
     }
 
     // Add a movie to Firestore
-    suspend fun addMovie(movie: Movie) {
+    suspend fun addFavoriteMovie(movie: Movie, userId: String) {
         try {
-            val movieCollection = firestore.collection("movies")
-            // Adds a new movie document to the collection. Firestore auto-generates the ID.
-            Log.d("MovieRepository", "Before adding: ${movie.imdbID}")
-            val documentRef = movieCollection.add(movie).await()
-            movie.id = documentRef.id // Now we can assign the generated ID to the movie's id
-            Log.d("MovieRepository", "Before adding: ${movie.imdbID}")
+            val favoriteRef = firestore
+                .collection("favorites")
+                .document(userId)
+                .collection("movies")
+                .document(movie.imdbID)
+
+            favoriteRef.set(movie).await()
         } catch (e: Exception) {
-            throw Exception("Error adding movie to Firestore: ${e.message}")
+            throw Exception("Error saving favorite: ${e.message}")
         }
     }
 
@@ -61,26 +62,47 @@ class MovieRepository(private val apiService: ApiService) {
             throw Exception("Error updating movie in Firestore: ${e.message}")
         }
     }
-
-    // Delete a movie from Firestore
-    suspend fun deleteMovie(movieId: String) {
+    suspend fun deleteFavoriteMovie(movie: Movie, userId: String) {
         try {
-            if (movieId.isEmpty()) {
-                throw Exception("Movie ID is required for deletion.")
-            }
-            val movieCollection = firestore.collection("movies")
-            val movieDocRef = movieCollection.document(movieId) // Use movieId to get the document reference
-            movieDocRef.delete().await() // Deletes the movie document
+            firestore
+                .collection("favorites")
+                .document(userId)
+                .collection("movies")
+                .document(movie.imdbID)
+                .delete()
+                .await()
         } catch (e: Exception) {
-            throw Exception("Error deleting movie from Firestore: ${e.message}")
+            throw Exception("Error deleting favorite movie: ${e.message}")
         }
     }
 
-    suspend fun getFavoriteMovies(): List<Movie> {
-        val snapshot = firestore.collection("favorites").get().await()
-        return snapshot.documents.mapNotNull { it.toObject(Movie::class.java) }
+
+
+    suspend fun getFavoriteMovies(userId: String): List<Movie> {
+        return try {
+            val snapshot = firestore
+                .collection("favorites")
+                .document(userId)
+                .collection("movies")
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { it.toObject(Movie::class.java) }
+        } catch (e: Exception) {
+            Log.e("MovieRepository", "Error fetching favorite movies: ${e.message}")
+            emptyList()
+        }
     }
 
+    suspend fun updateFavoriteMovie(movie: Movie, userId: String) {
+        val docRef = firestore
+            .collection("favorites")
+            .document(userId)
+            .collection("movies")
+            .document(movie.imdbID)
+
+        docRef.set(movie).await()
+    }
 
     // Get a movie by ID from Firestore (for editing purposes)
     suspend fun getMovieById(movieId: String): MovieDetail? {
